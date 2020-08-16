@@ -90,3 +90,52 @@ class Apple:
         :return:
         """
         self.score = self.discount_function(self.score)
+
+
+class Board(object):
+    """
+    Model of food.
+
+    :ivar position: (x, y) coordinate of apple's position
+    :ivar score: current score of food
+    :ivar discount_function: function that updates the score after each round (penalty for longer turns)
+    """
+
+    def __init__(self, board_matrix: np.ndarray, cube_size: int):
+        self.board_matrix = board_matrix
+        self.cube_size = cube_size
+
+    def check_bordercollision(self, new_head: Tuple[int, int]):
+        if new_head < self.board_matrix.shape:  # Check if coordinates are valid
+            if self.board_matrix[new_head] == 1:
+                return True
+            else:
+                return False
+
+#    def draw(self, surface, eyes=False):
+#        dis = self.w // self.rows
+#        i = self.pos[0]
+#        j = self.pos[1]#
+#        pygame.draw.rect(surface, self.color, (i * dis + 1, j * dis + 1, dis - 2, dis - 2))
+
+
+def edge_mask(x: np.ndarray):
+    mask = np.ones(x.shape, dtype=bool)
+    mask[x.ndim * (slice(1, -1),)] = False
+    return mask
+
+
+def main():
+    board_dim = (15+2, 20+2)  # +2 for the borders in each direction
+    dummy = np.zeros(board_dim, dtype=int)
+    dummy[edge_mask(dummy)] = 1
+
+    board = Board(dummy, 25)
+
+    dummy = board.check_bordercollision((2, 4))
+    print(board.check_bordercollision((2, 4)))
+    print(board.check_bordercollision((0, 3)))
+    print(board.check_bordercollision((4, 0)))
+
+if __name__ == "__main__":
+    main()
