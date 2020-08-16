@@ -7,13 +7,13 @@ class Snake:
     Models the snake in the game.
 
     :ivar body: coordinates of the snakes body in reverse order (i.e. body[0] is tail, body[-1] is head)
-    :ivar moving_direction: (x, y) coordinates of snakes's moving direction
+    :ivar moving_direction: (x, y) coordinates of snake's moving direction
     """
 
     def __init__(self, body: List[Tuple[int, int]]):
         """
-        Define snake's initial body and initalize moving direction attribute.
-        :param body: List of (x, y) coordinates of snake's inital body
+        Define snake's initial body and initialize moving direction attribute.
+        :param body: List of (x, y) coordinates of snake's initial body
         """
         self.body = body
         self.moving_direction = (0, 9)
@@ -88,31 +88,29 @@ class Apple:
 
 class Board(object):
     """
-    Model of food.
+    Model of gaming board.
 
     :ivar board_matrix: matrix of the playing field; 0 = valid; 1 = invalid
     :ivar cube_size: size of one board position
     """
 
     def __init__(self, board_matrix: np.ndarray, cube_size: int):
-        """
-        Initialize board
-        """
         self.board_matrix = board_matrix
         self.cube_size = cube_size
 
-    def check_bordercollision(self, new_head: Tuple[int, int]) -> bool:
+    def check_border_collision(self, new_head: Tuple[int, int]) -> bool:
+        """
+        Check if new coordinate (new_head) is on valid grid point on the board
+
+        :param new_head: new coordinate to check against the valid points
+
+        :return: True if a collision happened, False if new_head is within the field
+        """
         if new_head < self.board_matrix.shape:  # Check if coordinates are valid
             if self.board_matrix[new_head] == 1:
                 return True
             else:
                 return False
-
-#    def draw(self, surface, eyes=False):
-#        dis = self.w // self.rows
-#        i = self.pos[0]
-#        j = self.pos[1]#
-#        pygame.draw.rect(surface, self.color, (i * dis + 1, j * dis + 1, dis - 2, dis - 2))
 
 
 def edge_mask(x: np.ndarray):
@@ -128,10 +126,9 @@ def main():
 
     board = Board(dummy, 25)
 
-    dummy = board.check_bordercollision((2, 4))
-    print(board.check_bordercollision((2, 4)))
-    print(board.check_bordercollision((0, 3)))
-    print(board.check_bordercollision((4, 0)))
+    print(board.check_border_collision((2, 4)))
+    print(board.check_border_collision((0, 3)))
+    print(board.check_border_collision((4, 0)))
 
 if __name__ == "__main__":
     main()
