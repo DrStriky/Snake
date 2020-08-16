@@ -1,4 +1,5 @@
 from typing import Tuple, List, Optional, Callable
+import numpy as np
 
 
 class Snake:
@@ -9,7 +10,7 @@ class Snake:
     :ivar moving_direction: (x, y) coordinates of snakes's moving direction
     """
 
-    def __init__(self, body: List[int, int]):
+    def __init__(self, body: List[Tuple[int, int]]):
         """
         Define snake's initial body and initalize moving direction attribute.
         :param body: List of (x, y) coordinates of snake's inital body
@@ -66,13 +67,6 @@ class Apple:
     """
 
     def __init__(self, position: Tuple[int, int], score: int, discount_function: Callable[[int], int] = lambda x: x):
-        """
-        Sets position, inital scoare and discount function.
-
-        :param position: (x, y) coordinate of apple's position
-        :param score: current score of food
-        :param discount_function: function that updates the score after each round (penalty for longer turns)
-        """
         self.position = position
         self.score = score
         self.discount_function = discount_function
@@ -96,16 +90,18 @@ class Board(object):
     """
     Model of food.
 
-    :ivar position: (x, y) coordinate of apple's position
-    :ivar score: current score of food
-    :ivar discount_function: function that updates the score after each round (penalty for longer turns)
+    :ivar board_matrix: matrix of the playing field; 0 = valid; 1 = invalid
+    :ivar cube_size: size of one board position
     """
 
     def __init__(self, board_matrix: np.ndarray, cube_size: int):
+        """
+        Initialize board
+        """
         self.board_matrix = board_matrix
         self.cube_size = cube_size
 
-    def check_bordercollision(self, new_head: Tuple[int, int]):
+    def check_bordercollision(self, new_head: Tuple[int, int]) -> bool:
         if new_head < self.board_matrix.shape:  # Check if coordinates are valid
             if self.board_matrix[new_head] == 1:
                 return True
