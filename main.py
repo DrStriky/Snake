@@ -1,8 +1,9 @@
 from typing import Tuple, List, Optional
 import numpy as np
-from snake import Snake
-from board import Board
-from food import Apple
+
+from game import Game
+from interaction_handler import InteractionHandler
+
 
 
 def edge_mask(x: np.ndarray):
@@ -16,11 +17,10 @@ def main():
     dummy = np.zeros(board_dim, dtype=int)
     dummy[edge_mask(dummy)] = 1
 
-    board = Board(dummy, 25)
+    interaction_handler = InteractionHandler()
+    game = Game(dummy, 25, (3, 3), (5, 10), 42)
 
-    print(board.check_border_collision((2, 4)))
-    print(board.check_border_collision((0, 3)))
-    print(board.check_border_collision((4, 0)))
+    game.run_game(interaction_handler)
 
 
 if __name__ == "__main__":
