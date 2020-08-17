@@ -41,21 +41,23 @@ class Game:
             eaten = False
             # TODO inter_handler.probable wait()
 
-            self.snake.change_moving_direction(interaction_handler.get_interaction())
+            self.snake.change_moving_direction((0,1))  # (interaction_handler.get_interaction())
 
             # Get probable new position of snake (head) and check for validity
             new_position = self.snake.get_propagated_head()
             if self.board.check_border_collision(new_position):
                 alive = False
                 print('Your snake touched the wall!')
+                print(self.snake.body)
             if new_position == self.food.position:
                 eaten = True
                 print('Your snake has eaten.')
 
             # Update all game elements
-            if self.snake.update(eaten):
+            if not self.snake.update(eaten):
                 alive = False
                 print('Your snake touched itself!')
+
             if eaten:
                 self.game_score += self.food.score
                 self.food = Apple((self.random.randint(1, self.board.board_matrix.shape[0]), self.random.randint(1, self.board.board_matrix.shape[1])))
