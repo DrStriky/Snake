@@ -1,27 +1,33 @@
 from typing import Tuple, List, Optional
 import numpy as np
-from snake import Snake
-from board import Board
-from food import Apple
 
 
-def edge_mask(x: np.ndarray):
-    mask = np.ones(x.shape, dtype=bool)
-    mask[x.ndim * (slice(1, -1),)] = False
-    return mask
+class game:
+    """
+    Model of the snake game.
+    update for each 'tick' in a game.
 
+    :ivar position: (x, y) coordinate of apple's position
+    :ivar score: current score of food
+    :ivar discount_function: function that updates the score after each round (penalty for longer turns)
+    """
 
-def main():
-    board_dim = (15+2, 20+2)  # +2 for the borders in each direction
-    dummy = np.zeros(board_dim, dtype=int)
-    dummy[edge_mask(dummy)] = 1
+    def __init__(self, position: Tuple[int, int], score: int, discount_function: Callable[[int], int] = lambda x: x):
+        self.position = position
+        self.score = score
+        self.discount_function = discount_function
 
-    board = Board(dummy, 25)
+    def get_score(self) -> int:
+        """
+        :return: Current Score
+        """
+        return self.score
 
-    print(board.check_border_collision((2, 4)))
-    print(board.check_border_collision((0, 3)))
-    print(board.check_border_collision((4, 0)))
+    def update(self) -> None:
+        """
+        Updates the current score using the discount function.
 
+        :return:
+        """
+        self.score = self.discount_function(self.score)
 
-if __name__ == "__main__":
-    main()
