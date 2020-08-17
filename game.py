@@ -74,7 +74,7 @@ class Game:
         occupying_matrix[occupying_matrix == 1] = symbols['wall']
         occupying_matrix[occupying_matrix == 0] = symbols['valid']
 
-        if self.snake.body[0:-1]: # just print body of snake if there is one
+        if self.snake.body[0:-1]:  # just print body of snake if there is one
             occupying_matrix[tuple(np.array(self.snake.body[0:-1]).T)] = symbols['snake']
         occupying_matrix[self.snake.body[-1]] = symbols['head']
         occupying_matrix[self.food.position] = symbols['food']
