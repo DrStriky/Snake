@@ -55,14 +55,12 @@ class PygameInteractions(InteractionHandler):
             raise Exception('Loading of formatting file is not yet implemented!')
         else:
             self.board_formatting: Dict[BlockFormat] = {
-                'head': {'code': 101, 'color': (0, 0, 255) , 'picture': None},
+                'head': {'code': 101, 'color': (0, 0, 255), 'picture': None},
                 'wall': {'code': 1, 'color': (0, 0, 0), 'picture': None},
                 'valid': {'code': 0, 'color': (255, 255, 255), 'picture': None},
-                'snake': {'code': 100, 'color': (0, 0, 255) , 'picture': None},
-                'food': {'code': 200, 'color': (255, 0, 0) , 'picture': None}
+                'snake': {'code': 100, 'color': (0, 0, 255), 'picture': None},
+                'food': {'code': 200, 'color': (255, 0, 0), 'picture': None}
             }
-
-
 
     def get_encoding_dict(self) -> BoardEncodingDict:
         """Returns the encoding for different board elements."""
@@ -79,7 +77,6 @@ class PygameInteractions(InteractionHandler):
                 self._draw_block(block, kind)
 
         pygame.display.update()
-
 
     def _draw_block(self, block: Tuple[int, int], kind: str) -> None:
         """
@@ -115,21 +112,3 @@ class PygameInteractions(InteractionHandler):
                     self.moving_direction = key_direction_map[event.key]
 
         return self.moving_direction
-
-
-
-
-if __name__ == '__main__':
-    width = 32
-    height = 24
-    ticks_per_second = 2
-    block_size = 25
-    display = pygame.display((width * block_size, height * block_size))
-
-    interacter = PygameInteractions(display=display, block_length=block_size, ticks_per_second=2)
-    geometry_matrix = np.zeros([width, height])
-
-    interacter.draw_board(geometry_matrix, 0)
-    for k in range(5):
-        user_action = interacter.get_interaction()
-        print(f'User Action: {user_action}')

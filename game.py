@@ -47,7 +47,6 @@ class Game:
             if self.board.check_border_collision(new_position):
                 alive = False
                 print('Your snake touched the wall!')
-                print(self.snake.body)
             if new_position == self.food.position:
                 eaten = True
                 print('Your snake has eaten.')
