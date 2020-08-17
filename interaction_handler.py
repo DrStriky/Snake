@@ -31,4 +31,3 @@ class InteractionHandler:
     def get_interaction(self) -> direction:
         """Waits for player's input and returns the moving direction for the next snake"""
         pass
-

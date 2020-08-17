@@ -8,6 +8,9 @@ from food import Apple
 from interaction_handler import InteractionHandler
 
 
+import time
+
+
 class Game:
     """
     Model of the snake game.
@@ -41,7 +44,9 @@ class Game:
             eaten = False
             # TODO inter_handler.probable wait()
 
-            self.snake.change_moving_direction((0,1))  # (interaction_handler.get_interaction())
+            time.sleep(1)
+
+            self.snake.change_moving_direction(interaction_handler.get_interaction())
 
             # Get probable new position of snake (head) and check for validity
             new_position = self.snake.get_propagated_head()
@@ -64,16 +69,17 @@ class Game:
             else:
                 self.food.update()
 
-            interaction_handler.draw_board(self.get_occupying_matrix, self.game_score)
+            interaction_handler.draw_board(self.get_occupying_matrix(interaction_handler), self.game_score)
 
     def get_occupying_matrix(self, interaction_handler: InteractionHandler) -> np.array:
         symbols = interaction_handler.get_encoding_dict()
-        occupying_matrix = self.board.board_matrix
+        occupying_matrix = np.copy(self.board.board_matrix)
 
         occupying_matrix[occupying_matrix == 1] = symbols['wall']
         occupying_matrix[occupying_matrix == 0] = symbols['valid']
 
-        occupying_matrix[tuple(np.array(self.snake.body[0:-1]).T)] = symbols['snake']
+        if self.snake.body[0:-1]: # just if 
+            occupying_matrix[tuple(np.array(self.snake.body[0:-1]).T)] = symbols['snake']
         occupying_matrix[self.snake.body[-1]] = symbols['head']
         occupying_matrix[self.food.position] = symbols['food']
 

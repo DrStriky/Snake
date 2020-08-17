@@ -3,6 +3,8 @@ import numpy as np
 
 from game import Game
 from interaction_handler import InteractionHandler
+from pygame_interactions import PygameInteractions
+import pygame
 
 
 
@@ -13,14 +15,20 @@ def edge_mask(x: np.ndarray):
 
 
 def main():
-    board_dim = (15+2, 20+2)  # +2 for the borders in each direction
+    width = 15
+    height = 10
+    block_size = 25
+    board_dim = (width+2, height+2)  # +2 for the borders in each direction
     dummy = np.zeros(board_dim, dtype=int)
     dummy[edge_mask(dummy)] = 1
 
-    interaction_handler = InteractionHandler()
+    display = pygame.display.set_mode((board_dim[0] * block_size, board_dim[1] * block_size))
+
+    interacter = PygameInteractions(display=display, block_length=block_size, ticks_per_second=1)
+
     game = Game(dummy, 25, (3, 3), (3, 10), 42)
 
-    game.run_game(interaction_handler)
+    game.run_game(interacter)
 
 
 if __name__ == "__main__":
