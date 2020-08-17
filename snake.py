@@ -35,7 +35,7 @@ class Snake:
             del self.body[0]
 
         # return whether snake crashed into itself
-        crashed = new_head in self.body
+        crashed = new_head in self.body[-1]
         return crashed
 
     def get_propagated_head(self) -> Tuple[int, int]:
