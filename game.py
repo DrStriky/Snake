@@ -8,9 +8,6 @@ from food import Apple
 from interaction_handler import InteractionHandler
 
 
-import time
-
-
 class Game:
     """
     Model of the snake game.
@@ -42,9 +39,6 @@ class Game:
         alive = True
         while alive:
             eaten = False
-            # TODO inter_handler.probable wait()
-
-            time.sleep(1)
 
             self.snake.change_moving_direction(interaction_handler.get_interaction())
 
@@ -63,13 +57,16 @@ class Game:
                 alive = False
                 print('Your snake touched itself!')
 
+            occupying_matrix = self.get_occupying_matrix(interaction_handler)
             if eaten:
                 self.game_score += self.food.score
-                self.food = Apple((self.random.randint(1, self.board.board_matrix.shape[0]), self.random.randint(1, self.board.board_matrix.shape[1])))
+                valid_fields = [tuple(coord) for coord in np.argwhere(occupying_matrix == interaction_handler.get_encoding_dict()['valid']).tolist()]
+                self.food = Apple(self.random.choice(valid_fields))
+                occupying_matrix = self.get_occupying_matrix(interaction_handler)
             else:
                 self.food.update()
 
-            interaction_handler.draw_board(self.get_occupying_matrix(interaction_handler), self.game_score)
+            interaction_handler.draw_board(occupying_matrix, self.game_score)
 
     def get_occupying_matrix(self, interaction_handler: InteractionHandler) -> np.array:
         symbols = interaction_handler.get_encoding_dict()
@@ -78,7 +75,7 @@ class Game:
         occupying_matrix[occupying_matrix == 1] = symbols['wall']
         occupying_matrix[occupying_matrix == 0] = symbols['valid']
 
-        if self.snake.body[0:-1]: # just if 
+        if self.snake.body[0:-1]: # just print body of snake if there is one
             occupying_matrix[tuple(np.array(self.snake.body[0:-1]).T)] = symbols['snake']
         occupying_matrix[self.snake.body[-1]] = symbols['head']
         occupying_matrix[self.food.position] = symbols['food']

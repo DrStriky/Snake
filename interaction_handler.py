@@ -4,7 +4,7 @@ from typing import TypedDict, Literal
 
 class BoardEncodingDict(TypedDict):
     """
-    TypedDict class for enconding of different elements in board
+    TypedDict class for encoding of different elements in board
     """
     head: int
     wall: int

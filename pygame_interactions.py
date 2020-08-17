@@ -55,11 +55,11 @@ class PygameInteractions(InteractionHandler):
             raise Exception('Loading of formatting file is not yet implemented!')
         else:
             self.board_formatting: Dict[BlockFormat] = {
-                'head': {'code': 500, 'color': (0, 0, 255) , 'picture': None},
+                'head': {'code': 101, 'color': (0, 0, 255) , 'picture': None},
                 'wall': {'code': 1, 'color': (0, 0, 0), 'picture': None},
                 'valid': {'code': 0, 'color': (255, 255, 255), 'picture': None},
-                'snake': {'code': 500, 'color': (0, 0, 255) , 'picture': None},
-                'food': {'code': 500, 'color': (255, 0, 0) , 'picture': None}
+                'snake': {'code': 100, 'color': (0, 0, 255) , 'picture': None},
+                'food': {'code': 200, 'color': (255, 0, 0) , 'picture': None}
             }
 
 
@@ -111,8 +111,8 @@ class PygameInteractions(InteractionHandler):
 
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
-                # TODO filter for just valid keys
-                self.moving_direction = key_direction_map[event.key]
+                if event.key in key_direction_map.keys():
+                    self.moving_direction = key_direction_map[event.key]
 
         return self.moving_direction
 
