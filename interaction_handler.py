@@ -1,6 +1,7 @@
 import numpy as np
 from typing import TypedDict, Literal
 
+
 class BoardEncodingDict(TypedDict):
     """
     TypedDict class for enconding of different elements in board
@@ -23,7 +24,7 @@ class InteractionHandler:
         """Returns the encoding for different board elements."""
         pass
 
-    def draw_board(self, geometry_matrix: np.array) -> None:
+    def draw_board(self, geometry_matrix: np.array, current_score: int) -> None:
         """Updates the GUI for the next tick."""
         pass
 
