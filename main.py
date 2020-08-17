@@ -18,7 +18,7 @@ def main():
     dummy[edge_mask(dummy)] = 1
 
     interaction_handler = InteractionHandler()
-    game = Game(dummy, 25, (3, 3), (5, 10), 42)
+    game = Game(dummy, 25, (3, 3), (3, 10), 42)
 
     game.run_game(interaction_handler)
 
