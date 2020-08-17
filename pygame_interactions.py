@@ -116,3 +116,21 @@ class PygameInteractions(InteractionHandler):
                 self.moving_direction = key_direction_map[event.type]
 
         return self.moving_direction
+
+
+
+
+if __name__ == '__main__':
+    width = 32
+    height = 24
+    ticks_per_second = 2
+    block_size = 25
+    display = pygame.display((width * block_size, height * block_size))
+
+    interacter = PygameInteractions(display=display, block_length=block_size, ticks_per_second=2)
+    geometry_matrix = np.zeros([width, height])
+
+    interacter.draw_board(geometry_matrix, 0)
+    for k in range(5):
+        user_action = interacter.get_interaction()
+        print(f'User Action: {user_action}')
