@@ -44,6 +44,7 @@ class PygameInteractions(InteractionHandler):
         self.ticks_per_second = ticks_per_second
         self.moving_direction = (0, 0)
         self.block_length = block_length
+        self.font = pygame.font.SysFont("comicsansms", 15, bold=True)
 
         # validate that block length and window_size are consistent
         display_size = self.display.get_size()
@@ -75,6 +76,8 @@ class PygameInteractions(InteractionHandler):
             x, y = np.where(geometry_matrix == formatting['code'])
             for block in zip(x, y):
                 self._draw_block(block, kind)
+
+        self.display.blit(self.font.render(f'{current_score}', True, (0, 255, 255)),  (25, 0))
 
         pygame.display.update()
 

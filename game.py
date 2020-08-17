@@ -67,6 +67,8 @@ class Game:
 
             interaction_handler.draw_board(occupying_matrix, self.game_score)
 
+        print(f'\nYour final score is {self.game_score}')
+
     def get_occupying_matrix(self, interaction_handler: InteractionHandler) -> np.array:
         symbols = interaction_handler.get_encoding_dict()
         occupying_matrix = np.copy(self.board.board_matrix)

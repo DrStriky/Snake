@@ -19,6 +19,9 @@ def main():
     dummy = np.zeros(board_dim, dtype=int)
     dummy[edge_mask(dummy)] = 1
 
+    pygame.init()
+    pygame.font.init()
+
     display = pygame.display.set_mode((board_dim[0] * block_size, board_dim[1] * block_size))
     interacter = PygameInteractions(display=display, block_length=block_size, ticks_per_second=5)
 

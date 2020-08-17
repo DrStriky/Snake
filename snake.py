@@ -53,4 +53,6 @@ class Snake:
 
         :param new_direction: (x, y) of new direction
         """
-        self.moving_direction = new_direction
+        # do not update, if direction should be reversed
+        if not (new_direction[0] == -self.moving_direction[0] and new_direction[1] == -self.moving_direction[1]) :
+            self.moving_direction = new_direction
