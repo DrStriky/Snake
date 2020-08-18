@@ -15,9 +15,9 @@ class BlockFormat(TypedDict):
     """
     Formatting instructions for the different fields on the board (e.g. snake, wall, head, food)
 
-    :var code: integer code representing the element type in the geometry matrix
-    :var color: (R, G, B)-tuple for color of element
-    :var picture: path to picture, if the element should be filled with a picture (e.g. apple or head)
+    :cvar code: integer code representing the element type in the geometry matrix
+    :cvar color: (R, G, B)-tuple for color of element
+    :cvar picture: path to picture, if the element should be filled with a picture (e.g. apple or head)
     """
     code: int
     color: Tuple[int, int, int]
@@ -44,7 +44,7 @@ class PygameInteractions(InteractionHandler):
         self.ticks_per_second = ticks_per_second
         self.moving_direction = (0, 0)
         self.block_length = block_length
-        self.font = pygame.font.SysFont("comicsansms", 15, bold=True)
+        self.font = pygame.font.SysFont('comicsansms', 15, bold=True)
 
         # validate that block length and window_size are consistent
         display_size = self.display.get_size()
@@ -55,7 +55,7 @@ class PygameInteractions(InteractionHandler):
             # ToDo: Load format from formatting file
             raise Exception('Loading of formatting file is not yet implemented!')
         else:
-            self.board_formatting: Dict[BlockFormat] = {
+            self.board_formatting: Dict[str, BlockFormat] = {
                 'head': {'code': 101, 'color': (0, 0, 255), 'picture': None},
                 'wall': {'code': 1, 'color': (0, 0, 0), 'picture': None},
                 'valid': {'code': 0, 'color': (255, 255, 255), 'picture': None},
@@ -74,6 +74,7 @@ class PygameInteractions(InteractionHandler):
         """
         for kind, formatting in self.board_formatting.items():
             x, y = np.where(geometry_matrix == formatting['code'])
+            block: Tuple[int, int]
             for block in zip(x, y):
                 self._draw_block(block, kind)
 
