@@ -24,13 +24,13 @@ class BlockFormat(TypedDict):
     picture: str
 
 
-class PygameInteractions(InteractionHandler):
+class PyGamePyTorchInteractionHandler(InteractionHandler):
     """
     Implements GUI and user interactions in PyGame.
     """
 
     def __init__(self, display: pygame.display, block_length: int, ticks_per_second: int = 30,
-                 formatting_file: Optional[str] = None):
+                 player: Player, formatting_file: Optional[str] = None, display=True):
         """
         Initializes the board and loads the formatting parameters.
         :param display: display that should be used for user interaction
@@ -68,9 +68,9 @@ class PygameInteractions(InteractionHandler):
         encoding_dict: BoardEncodingDict = {field: formats['code'] for field, formats in self.board_formatting.items()}
         return encoding_dict
 
-    def push_board_status(self, geometry_matrix: np.array, moving_direction: Tuple[int, int], current_score: int) -> None:
+    def push_board_status(self, geometry_matrix: np.array, current_score: int) -> None:
         """
-        Forward the updated board to the player.
+        Updates the GUI for the next tick.
         """
         for kind, formatting in self.board_formatting.items():
             x, y = np.where(geometry_matrix == formatting['code'])
@@ -115,3 +115,6 @@ class PygameInteractions(InteractionHandler):
                     self.moving_direction = key_direction_map[event.key]
 
         return self.moving_direction
+
+
+class PytorchPlayer():

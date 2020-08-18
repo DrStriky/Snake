@@ -47,6 +47,12 @@ class Snake:
         head = self.body[-1]
         return head[0] + self.moving_direction[0], head[1] + self.moving_direction[1]
 
+    def get_moving_direction(self) -> None:
+        """
+        :return: current moving direction of snake
+        """
+        return self.moving_direction
+    
     def change_moving_direction(self, new_direction: Tuple[int, int]) -> None:
         """
         Updates self.moving_direction with a new direction.

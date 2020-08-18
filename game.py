@@ -65,7 +65,8 @@ class Game:
             else:
                 self.food.update()
 
-            interaction_handler.draw_board(occupying_matrix, self.game_score)
+            interaction_handler.push_board_status(occupying_matrix, self.snake.get_moving_direction(),
+                                                  self.game_score)
 
         print(f'\nYour final score is {self.game_score}')
 
