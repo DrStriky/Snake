@@ -21,13 +21,14 @@ def main():
 
     pygame.init()
     pygame.font.init()
+    pygame.display.set_caption('Snake  (By Jonathan & Florian)')
 
     display = pygame.display.set_mode((board_dim[0] * block_size, board_dim[1] * block_size))
-    interacter = PygameInteractions(display=display, block_length=block_size, ticks_per_second=5)
+    interactor = PygameInteractions(display=display, block_length=block_size, ticks_per_second=5)
 
     game = Game(dummy, 25, (3, 3), (3, 10), 42)
 
-    game.run_game(interacter)
+    game.run_game(interactor)
 
 
 if __name__ == "__main__":
