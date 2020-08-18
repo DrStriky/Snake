@@ -25,6 +25,10 @@ def main():
     pygame.font.init()
 
     display = pygame.display.set_mode((board_dim[0] * block_size, board_dim[1] * block_size))
+    # ToDo: remove this crap that is caused by fucking OS X/PyGame Interaction Error
+    for event in pygame.event.get():
+        pass
+
     our_player = PyTorchPlayer()
     interacter = PyGamePyTorchInteractionHandler(player=our_player, display=display, block_length=block_size,
                                                  ticks_per_second=5)

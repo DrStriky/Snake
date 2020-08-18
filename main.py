@@ -3,6 +3,7 @@ import numpy as np
 from game import Game
 from pygame_interactions import PygameInteractions
 import pygame
+import time
 
 
 def edge_mask(x: np.ndarray):
@@ -24,6 +25,10 @@ def main():
     pygame.display.set_caption('Snake  (By Jonathan & Florian)')
 
     display = pygame.display.set_mode((board_dim[0] * block_size, board_dim[1] * block_size))
+    # ToDo: remove this crap that is caused by fucking OS X/PyGame Interaction Error
+    for event in pygame.event.get():
+        pass
+
     interactor = PygameInteractions(display=display, block_length=block_size, ticks_per_second=5)
 
     game = Game(dummy, 25, (3, 3), (3, 10), 42)

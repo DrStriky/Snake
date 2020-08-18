@@ -131,6 +131,10 @@ class PyGamePyTorchInteractionHandler(InteractionHandler):
             pygame.display.update()
             self.clock.tick(self.ticks_per_second)
 
+            for event in pygame.event.get():
+                # ToDo: remove this crap that is caused by fucking OS X/PyGame Interaction Error
+                pass
+
     def _draw_block(self, block: Tuple[int, int], kind: str) -> None:
         """
         Draws a specific block on display.
