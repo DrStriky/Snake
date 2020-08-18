@@ -15,7 +15,7 @@ class Snake:
         :param body: List of (x, y) coordinates of snake's initial body
         """
         self.body = body
-        self.moving_direction = (0, 9)
+        self.moving_direction = (0, 0)
 
     def update(self, got_food: Optional[bool] = False) -> bool:
         """
@@ -52,7 +52,7 @@ class Snake:
         :return: current moving direction of snake
         """
         return self.moving_direction
-    
+
     def change_moving_direction(self, new_direction: Tuple[int, int]) -> None:
         """
         Updates self.moving_direction with a new direction.

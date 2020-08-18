@@ -37,9 +37,12 @@ class Game:
         :return:
         """
         alive = True
-        while alive:
-            eaten = False
+        eaten = False
 
+        while alive:
+            occupying_matrix = self.get_occupying_matrix(interaction_handler)
+            interaction_handler.push_board_status(occupying_matrix, self.snake.get_moving_direction(),
+                                                  self.game_score, self.food.get_score())
             self.snake.change_moving_direction(interaction_handler.get_interaction())
 
             # Get probable new position of snake (head) and check for validity
@@ -56,17 +59,14 @@ class Game:
                 alive = False
                 print('Your snake touched itself!')
 
-            occupying_matrix = self.get_occupying_matrix(interaction_handler)
             if eaten:
                 self.game_score += self.food.score
                 valid_fields = [tuple(coord) for coord in np.argwhere(occupying_matrix == interaction_handler.get_encoding_dict()['valid']).tolist()]
                 self.food = Apple(self.random.choice(valid_fields))
                 occupying_matrix = self.get_occupying_matrix(interaction_handler)
+                eaten = False
             else:
                 self.food.update()
-
-            interaction_handler.push_board_status(occupying_matrix, self.snake.get_moving_direction(),
-                                                  self.game_score)
 
         print(f'\nYour final score is {self.game_score}')
 

@@ -29,7 +29,7 @@ class PygameInteractions(InteractionHandler):
     Implements GUI and user interactions in PyGame.
     """
 
-    def __init__(self, display: pygame.display, block_length: int, ticks_per_second: int = 30,
+    def __init__(self, display: pygame.Surface, block_length: int, ticks_per_second: int = 30,
                  formatting_file: Optional[str] = None):
         """
         Initializes the board and loads the formatting parameters.
@@ -68,7 +68,8 @@ class PygameInteractions(InteractionHandler):
         encoding_dict: BoardEncodingDict = {field: formats['code'] for field, formats in self.board_formatting.items()}
         return encoding_dict
 
-    def push_board_status(self, geometry_matrix: np.array, moving_direction: Tuple[int, int], current_score: int) -> None:
+    def push_board_status(self, geometry_matrix: np.array, moving_direction: Tuple[int, int], current_score: int,
+                          food_score: int) -> None:
         """
         Forward the updated board to the player.
         """
