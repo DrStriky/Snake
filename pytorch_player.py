@@ -20,7 +20,7 @@ class PyTorchPlayer(Player):
         self.epsilon = 0
         self.memory = deque()
         self.lr = 1e-4
-        self.model = Linear_QNet2(11, 256, 3)
+        self.model = Linear_QNet2(12, 256, 4)
         self.model.train()
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
         self.loss_fn = nn.MSELoss()
@@ -45,12 +45,14 @@ class PyTorchPlayer(Player):
     def get_response(self) -> Tuple[int, int]:
         self.new_status['prediction'] = self.predict_action()
 
-        if self.new_status['prediction'][0] == 1:  # left
-            self.new_status['move'] = (-self.new_status['moving_direction'][1], self.new_status['moving_direction'][0])
-        elif self.new_status['prediction'][1] == 1:  # straight
-            self.new_status['move'] = (self.new_status['moving_direction'][0], self.new_status['moving_direction'][1])
-        elif self.new_status['prediction'][2] == 1:  # right
-            self.new_status['move'] = (self.new_status['moving_direction'][1], -self.new_status['moving_direction'][0])
+        if self.new_status['prediction'][0] == 1:  # up
+            self.new_status['move'] = (-1, 0)
+        elif self.new_status['prediction'][1] == 1:  # left
+            self.new_status['move'] = (0, -1)
+        elif self.new_status['prediction'][2] == 1:  # down
+            self.new_status['move'] = (1, 0)
+        elif self.new_status['prediction'][3] == 1:  # right
+            self.new_status['move'] = (0, 1)
 
         if self.counter_move == 0:
             self.previous_status = self.new_status
@@ -83,9 +85,10 @@ class PyTorchPlayer(Player):
         food = np.asarray(np.where(self.new_status['matrix'] == self.encoding['food'])).flatten()
 
         # Check if left, straight and right are free
-        predictor_vector.append(False if self.new_status['matrix'][head[0]+self.new_status['moving_direction'][1], head[1]-self.new_status['moving_direction'][0]] == self.encoding['valid'] else True)
-        predictor_vector.append(False if self.new_status['matrix'][head[0]+self.new_status['moving_direction'][0], head[1]+self.new_status['moving_direction'][1]] == self.encoding['valid'] else True)
-        predictor_vector.append(False if self.new_status['matrix'][head[0]-self.new_status['moving_direction'][1], head[1]+self.new_status['moving_direction'][0]] == self.encoding['valid'] else True)
+        predictor_vector.append(False if self.new_status['matrix'][head[0]-1, head[1]+0] == self.encoding['valid'] else True)
+        predictor_vector.append(False if self.new_status['matrix'][head[0]+0, head[1]-1] == self.encoding['valid'] else True)
+        predictor_vector.append(False if self.new_status['matrix'][head[0]+1, head[1]+0] == self.encoding['valid'] else True)
+        predictor_vector.append(False if self.new_status['matrix'][head[0]+0, head[1]+1] == self.encoding['valid'] else True)
 
         # Which direction are we running?
         predictor_vector.append(True if self.new_status['moving_direction'] == (-1, 0) else False)  # up
@@ -103,9 +106,9 @@ class PyTorchPlayer(Player):
 
     def predict_action(self) -> List[int]:
         self.epsilon = 80 - self.counter_games
-        final_move = [0, 0, 0]
+        final_move = [0, 0, 0, 0]
         if random.randint(0, 200) < self.epsilon:
-            move = random.randint(0, 2)
+            move = random.randint(0, 3)
             final_move[move] += 1
         else:
             state0 = torch.tensor(self.new_status['predictor_vector'], dtype=torch.float)

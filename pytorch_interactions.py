@@ -66,7 +66,7 @@ class PyGamePyTorchInteractionHandler(InteractionHandler):
                 'head': {'code': 101, 'color': (0, 0, 255), 'picture': None},
                 'wall': {'code': 1, 'color': (0, 0, 0), 'picture': None},
                 'valid': {'code': 0, 'color': (255, 255, 255), 'picture': None},
-                'snake': {'code': 100, 'color': (0, 0, 255), 'picture': None},
+                'snake': {'code': 100, 'color': (100, 100, 255), 'picture': None},
                 'food': {'code': 200, 'color': (255, 0, 0), 'picture': None}
             }
 

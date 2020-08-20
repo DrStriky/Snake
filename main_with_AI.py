@@ -16,8 +16,8 @@ def edge_mask(x: np.ndarray):
 
 def main():
     # Define board
-    width = 8
-    height = 5
+    width = 15
+    height = 10
     block_size = 25
 
     dummy = np.zeros((height+2, width+2), dtype=int)
@@ -32,7 +32,7 @@ def main():
     # set up player
     ai_player = PyTorchPlayer()
     interacter = PyGamePyTorchInteractionHandler(player=ai_player, display=display, block_length=block_size,
-                                                 ticks_per_second=500)
+                                                 ticks_per_second=2000)
     ai_player.encoding = interacter.get_encoding_dict()
 
     total_score = 0
