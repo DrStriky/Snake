@@ -1,8 +1,11 @@
-import pygame
-import numpy as np
-from interaction_handler import InteractionHandler, BoardEncodingDict, direction
 from typing import Dict, Tuple, TypedDict, Optional
+
+import numpy as np
+import pygame
+
+from interaction_handler import InteractionHandler, BoardEncodingDict, direction
 from player import Player
+
 
 class ConfigurationError(Exception):
     """
@@ -146,7 +149,7 @@ class PyGamePyTorchInteractionHandler(InteractionHandler):
         if self.board_formatting[kind]['picture'] is not None:
             raise Exception('Displaying pictures has not yet been implemented!')
         else:
-            rectangle = [block[0] * self.block_length, block[1] * self.block_length,
+            rectangle = [block[1] * self.block_length, block[0] * self.block_length,
                          self.block_length, self.block_length]
             pygame.draw.rect(self.display, self.board_formatting[kind]['color'], rectangle)
 
@@ -155,5 +158,3 @@ class PyGamePyTorchInteractionHandler(InteractionHandler):
         Waits for player's input and returns the moving direction for the next snake
         """
         return self.player.get_response()
-
-

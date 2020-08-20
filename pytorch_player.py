@@ -1,15 +1,14 @@
+import random
+from collections import deque
+from typing import Tuple, List
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
-from network import Linear_QNet2
 
+from network import Linear_QNet2
 from player import Player
-from interaction_handler import BoardEncodingDict
-import random
-import numpy as np
-from typing import Tuple, List
-from collections import deque
 
 
 class PyTorchPlayer(Player):
@@ -26,66 +25,83 @@ class PyTorchPlayer(Player):
         self.optimizer = optim.Adam(self.model.parameters(), lr=0.001)
         self.loss_fn = nn.MSELoss()
 
+        self.previous_status = None
+        self.new_status = None
+        self.encoding = None
+
     def push_board_status(self, occupation_matrix: np.array, moving_direction: Tuple[int, int],
                           score: int, food_score: int) -> None:
         """Player receives new board status"""
         self.new_status = {'matrix': occupation_matrix,
-                       'moving_direction': moving_direction,
-                       'score': score,
-                       'food_score': food_score,
-                       'predictor_vector': None,
-                       'move': None}
+                           'moving_direction': moving_direction,
+                           'score': score,
+                           'food_score': food_score,
+                           'predictor_vector': None,
+                           'prediction': None,
+                           'move': None}
+
+        self.get_state_vector()
 
     def get_response(self) -> Tuple[int, int]:
-        self.get_state_vector()
-        dummy = self.predict_action()
+        self.new_status['prediction'] = self.predict_action()
 
-        if dummy[0] == 1:  # left
+        if self.new_status['prediction'][0] == 1:  # left
             self.new_status['move'] = (-self.new_status['moving_direction'][1], self.new_status['moving_direction'][0])
-        elif dummy[1] == 1:  #straight
+        elif self.new_status['prediction'][1] == 1:  # straight
             self.new_status['move'] = (self.new_status['moving_direction'][0], self.new_status['moving_direction'][1])
-        else:  # right
-            self.new_status['move'] = (self.new_status['moving_direction'][1], self.new_status['moving_direction'][0])
+        elif self.new_status['prediction'][2] == 1:  # right
+            self.new_status['move'] = (self.new_status['moving_direction'][1], -self.new_status['moving_direction'][0])
 
         if self.counter_move == 0:
             self.previous_status = self.new_status
-            self.previous_status['move'] = (0,1)
+            self.previous_status['move'] = (0, 1)
 
+        reward = self.new_status['score']-self.previous_status['score']-1
         # self.train_short_memory(state_old, final_move, reward, state_new, done)
-        self.train_short_memory(self.previous_status['predictor_vector'], self.previous_status['move'], -self.previous_status['food_score'], self.new_status['predictor_vector'], False)
+        self.train_short_memory(self.previous_status['predictor_vector'], self.previous_status['prediction'], reward, self.new_status['predictor_vector'], False)
         # self.remember(state_old, final_move, reward, state_new, done)
-        self.remember(self.previous_status['predictor_vector'], self.previous_status['move'], -self.previous_status['food_score'], self.new_status['predictor_vector'], False)
+        self.remember(self.previous_status['predictor_vector'], self.previous_status['prediction'], reward, self.new_status['predictor_vector'], False)
 
         self.previous_status = self.new_status
         self.counter_move += 1
 
         return self.new_status['move']
 
+    def closing_action(self):
+        # One game is over, train on the memory
+        self.get_state_vector()
+
+        reward = -10
+
+        self.train_short_memory(self.previous_status['predictor_vector'], self.previous_status['prediction'], reward, self.new_status['predictor_vector'], True)
+        self.remember(self.previous_status['predictor_vector'], self.previous_status['prediction'], reward, self.new_status['predictor_vector'], True)
+        self.train_long_memory(self.memory)
+
     def get_state_vector(self) -> None:
         predictor_vector = []
-        head = np.where(self.new_status['matrix'] == self.encoding['head'])
-        food = np.where(self.new_status['matrix'] == self.encoding['food'])
+        head = np.asarray(np.where(self.new_status['matrix'] == self.encoding['head'])).flatten()
+        food = np.asarray(np.where(self.new_status['matrix'] == self.encoding['food'])).flatten()
 
         # Check if left, straight and right are free
-        predictor_vector.append(True if self.new_status['matrix'][tuple(p + q for p, q in zip(head, (-self.new_status['moving_direction'][1], self.new_status['moving_direction'][0])))] == self.encoding['valid'] else False)
-        predictor_vector.append(True if self.new_status['matrix'][tuple(p + q for p, q in zip(head, (self.new_status['moving_direction'][0], self.new_status['moving_direction'][1])))] == self.encoding['valid'] else False)
-        predictor_vector.append(True if self.new_status['matrix'][tuple(p + q for p, q in zip(head, (self.new_status['moving_direction'][1], self.new_status['moving_direction'][0])))] == self.encoding['valid'] else False)
+        predictor_vector.append(False if self.new_status['matrix'][head[0]+self.new_status['moving_direction'][1], head[1]-self.new_status['moving_direction'][0]] == self.encoding['valid'] else True)
+        predictor_vector.append(False if self.new_status['matrix'][head[0]+self.new_status['moving_direction'][0], head[1]+self.new_status['moving_direction'][1]] == self.encoding['valid'] else True)
+        predictor_vector.append(False if self.new_status['matrix'][head[0]-self.new_status['moving_direction'][1], head[1]+self.new_status['moving_direction'][0]] == self.encoding['valid'] else True)
 
         # Which direction are we running?
-        predictor_vector.append(True if self.new_status['moving_direction'] == (0,1) else False)
-        predictor_vector.append(True if self.new_status['moving_direction'] == (0,-1) else False)
-        predictor_vector.append(True if self.new_status['moving_direction'] == (1,0) else False)
-        predictor_vector.append(True if self.new_status['moving_direction'] == (-1,0) else False)
+        predictor_vector.append(True if self.new_status['moving_direction'] == (-1, 0) else False)  # up
+        predictor_vector.append(True if self.new_status['moving_direction'] == (0, -1) else False)  # left
+        predictor_vector.append(True if self.new_status['moving_direction'] == (1, 0) else False)  # down
+        predictor_vector.append(True if self.new_status['moving_direction'] == (0, 1) else False)  # right
 
-        # In which direction is the next food (
-        predictor_vector.append(True if food[0] < head[0] else False)
-        predictor_vector.append(True if food[0] > head[0] else False)
-        predictor_vector.append(True if food[1] < head[1] else False)
-        predictor_vector.append(True if food[1] > head[1] else False)
+        # In which direction is the next food
+        predictor_vector.append(True if food[0] < head[0] else False)  # above
+        predictor_vector.append(True if food[1] < head[1] else False)  # left
+        predictor_vector.append(True if food[0] > head[0] else False)  # down
+        predictor_vector.append(True if food[1] > head[1] else False)  # right
 
-        self.new_status['predictor_vector'] = predictor_vector
+        self.new_status['predictor_vector'] = np.asarray(list(map(int, predictor_vector)))
 
-    def predict_action(self) -> List:
+    def predict_action(self) -> List[int]:
         self.epsilon = 80 - self.counter_games
         final_move = [0, 0, 0]
         if random.randint(0, 200) < self.epsilon:
@@ -110,7 +126,6 @@ class PyTorchPlayer(Player):
         action = torch.tensor(action, dtype=torch.long)  # [1, 0, 0]
         reward = torch.tensor(reward, dtype=torch.float)  # int
         next_state = torch.tensor(next_state, dtype=torch.float)  # [True, ... , False]
-        target = reward
         target = reward + self.gamma * torch.max(self.model(next_state), dim=1)[0]
         location = [[x] for x in torch.argmax(action, dim=1).numpy()]
         location = torch.tensor(location)

@@ -1,11 +1,12 @@
-from typing import Tuple
-import numpy as np
 import random
+from typing import Tuple
 
-from snake import Snake
+import numpy as np
+
 from board import Board
 from food import Apple
 from interaction_handler import InteractionHandler
+from snake import Snake
 
 
 class Game:
@@ -22,9 +23,9 @@ class Game:
     :ivar food: instance of the food
     """
 
-    def __init__(self, board_dim: np.ndarray, cube_size: int, snake_start: Tuple[int, int], food_start: Tuple[int, int], random_seed: int):
+    def __init__(self, board_dim: np.ndarray, snake_start: Tuple[int, int], food_start: Tuple[int, int], random_seed: int):
         self.game_score = 0
-        self.board = Board(board_dim, cube_size)
+        self.board = Board(board_dim)
         self.snake = Snake([snake_start])
         self.food = Apple(food_start)
 
@@ -68,6 +69,8 @@ class Game:
             else:
                 self.food.update()
 
+        interaction_handler.push_board_status(occupying_matrix, self.snake.get_moving_direction(),
+                                              self.game_score, self.food.get_score())
         print(f'\nYour final score is {self.game_score}')
 
     def get_occupying_matrix(self, interaction_handler: InteractionHandler) -> np.array:

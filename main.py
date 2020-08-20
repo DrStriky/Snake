@@ -3,7 +3,7 @@ import numpy as np
 from game import Game
 from pygame_interactions import PygameInteractions
 import pygame
-import time
+import random
 
 
 def edge_mask(x: np.ndarray):
@@ -13,25 +13,27 @@ def edge_mask(x: np.ndarray):
 
 
 def main():
-    width = 15
-    height = 10
+    # Define board
+    width = 8
+    height = 5
     block_size = 25
-    board_dim = (width+2, height+2)  # +2 for the borders in each direction
-    dummy = np.zeros(board_dim, dtype=int)
+
+    dummy = np.zeros((height+2, width+2), dtype=int)
     dummy[edge_mask(dummy)] = 1
 
     pygame.init()
     pygame.font.init()
     pygame.display.set_caption('Snake  (By Jonathan & Florian)')
-
-    display = pygame.display.set_mode((board_dim[0] * block_size, board_dim[1] * block_size))
-    # ToDo: remove this crap that is caused by fucking OS X/PyGame Interaction Error
-    for event in pygame.event.get():
-        pass
+    display = pygame.display.set_mode([dummy.shape[1]*block_size, dummy.shape[0]*block_size])
 
     interactor = PygameInteractions(display=display, block_length=block_size, ticks_per_second=5)
 
-    game = Game(dummy, 25, (3, 3), (3, 10), 42)
+    snake_start_pos = (3, 3)
+    valid_pos = [tuple(coord) for coord in np.argwhere(dummy == 0).tolist()]
+    valid_pos.remove(snake_start_pos)
+    food_start_pos = valid_pos[random.randint(0, len(valid_pos) - 1)]
+
+    game = Game(dummy, snake_start_pos, food_start_pos, 42)
 
     game.run_game(interactor)
 

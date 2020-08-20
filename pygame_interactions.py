@@ -59,7 +59,7 @@ class PygameInteractions(InteractionHandler):
                 'head': {'code': 101, 'color': (0, 0, 255), 'picture': None},
                 'wall': {'code': 1, 'color': (0, 0, 0), 'picture': None},
                 'valid': {'code': 0, 'color': (255, 255, 255), 'picture': None},
-                'snake': {'code': 100, 'color': (0, 0, 255), 'picture': None},
+                'snake': {'code': 100, 'color': (100, 100, 255), 'picture': None},
                 'food': {'code': 200, 'color': (255, 0, 0), 'picture': None}
             }
 
@@ -94,7 +94,7 @@ class PygameInteractions(InteractionHandler):
         if self.board_formatting[kind]['picture'] is not None:
             raise Exception('Displaying pictures has not yet been implemented!')
         else:
-            rectangle = [block[0] * self.block_length, block[1] * self.block_length,
+            rectangle = [block[1] * self.block_length, block[0] * self.block_length,
                          self.block_length, self.block_length]
             pygame.draw.rect(self.display, self.board_formatting[kind]['color'], rectangle)
 
@@ -103,10 +103,10 @@ class PygameInteractions(InteractionHandler):
         Waits for player's input and returns the moving direction for the next snake
         """
 
-        key_direction_map = {pygame.K_DOWN: (0, 1),
-                             pygame.K_RIGHT: (1, 0),
-                             pygame.K_UP: (0, -1),
-                             pygame.K_LEFT: (-1, 0)
+        key_direction_map = {pygame.K_DOWN: (1, 0),
+                             pygame.K_RIGHT: (0, 1),
+                             pygame.K_UP: (-1, 0),
+                             pygame.K_LEFT: (0, -1)
                              }
 
         self.clock.tick(self.ticks_per_second)
