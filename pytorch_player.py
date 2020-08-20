@@ -84,11 +84,11 @@ class PyTorchPlayer(Player):
         head = np.asarray(np.where(self.new_status['matrix'] == self.encoding['head'])).flatten()
         food = np.asarray(np.where(self.new_status['matrix'] == self.encoding['food'])).flatten()
 
-        # Check if left, straight and right are free
-        predictor_vector.append(False if self.new_status['matrix'][head[0]-1, head[1]+0] == self.encoding['valid'] else True)
-        predictor_vector.append(False if self.new_status['matrix'][head[0]+0, head[1]-1] == self.encoding['valid'] else True)
-        predictor_vector.append(False if self.new_status['matrix'][head[0]+1, head[1]+0] == self.encoding['valid'] else True)
-        predictor_vector.append(False if self.new_status['matrix'][head[0]+0, head[1]+1] == self.encoding['valid'] else True)
+        # Check if directions are free
+        predictor_vector.append(False if self.new_status['matrix'][head[0]-1, head[1]+0] == self.encoding['valid'] else True)  # up
+        predictor_vector.append(False if self.new_status['matrix'][head[0]+0, head[1]-1] == self.encoding['valid'] else True)  # left
+        predictor_vector.append(False if self.new_status['matrix'][head[0]+1, head[1]+0] == self.encoding['valid'] else True)  # down
+        predictor_vector.append(False if self.new_status['matrix'][head[0]+0, head[1]+1] == self.encoding['valid'] else True)  # right
 
         # Which direction are we running?
         predictor_vector.append(True if self.new_status['moving_direction'] == (-1, 0) else False)  # up
@@ -117,7 +117,7 @@ class PyTorchPlayer(Player):
             final_move[move] += 1
         return final_move
 
-    def train_long_memory(self, memory):
+    def train_long_memory(self, memory) -> None:
         self.counter_games += 1
         if len(memory) > 1000:
             minibatch = random.sample(memory, 1000)
@@ -138,7 +138,7 @@ class PyTorchPlayer(Player):
         loss.backward()
         self.optimizer.step()
 
-    def train_short_memory(self, state, action, reward, next_state, done):
+    def train_short_memory(self, state, action, reward, next_state, done) -> None:
         state = torch.tensor(state, dtype=torch.float)
         next_state = torch.tensor(next_state, dtype=torch.float)
         action = torch.tensor(action, dtype=torch.long)
@@ -155,7 +155,7 @@ class PyTorchPlayer(Player):
         loss.backward()
         self.optimizer.step()
 
-    def remember(self, state, action, reward, next_state, done):
+    def remember(self, state, action, reward, next_state, done) -> None:
         self.memory.append([state, action, reward, next_state, done])
         if len(self.memory) > 100000:
             self.memory.popleft()
