@@ -23,13 +23,33 @@ class Game:
     :ivar food: instance of the food
     """
 
-    def __init__(self, board_dim: np.ndarray, snake_start: Tuple[int, int], food_start: Tuple[int, int], random_seed: int):
+    def __init__(self, board_dim: np.ndarray, snake_start: Tuple[int, int] = None, food_start: Tuple[int, int] = None, random_seed: int = 42):
         self.game_score = 0
-        self.board = Board(board_dim)
-        self.snake = Snake([snake_start])
-        self.food = Apple(food_start)
-
         self.random = random.Random(random_seed)
+        self.board = Board(board_dim)
+
+        if snake_start is None:
+            self.snake = Snake([self.seed_element()])
+        else:
+            self.snake = Snake([snake_start])
+
+        if food_start is None:
+            self.food = Apple(self.seed_element())
+        else:
+            self.food = Apple(food_start)
+
+    def seed_element(self) -> Tuple[int, int]:
+        valid_fields = [tuple(coord) for coord in np.argwhere(self.board.board_matrix == 0).tolist()]
+
+        occupied_fields = []
+        if hasattr(self, 'snake'):
+            occupied_fields = occupied_fields+self.snake.body
+        if hasattr(self, 'food'):
+            occupied_fields = occupied_fields + [self.food.position]
+
+        free_fields = [item for item in valid_fields if item not in occupied_fields]
+
+        return self.random.choice(free_fields)
 
     def run_game(self, interaction_handler: InteractionHandler) -> None:
         """
@@ -62,8 +82,7 @@ class Game:
 
             if eaten:
                 self.game_score += self.food.score
-                valid_fields = [tuple(coord) for coord in np.argwhere(occupying_matrix == interaction_handler.get_encoding_dict()['valid']).tolist()]
-                self.food = Apple(self.random.choice(valid_fields))
+                self.food = Apple(self.seed_element())
                 occupying_matrix = self.get_occupying_matrix(interaction_handler)
                 eaten = False
             else:

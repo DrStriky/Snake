@@ -2,7 +2,9 @@ import random
 from collections import deque
 from typing import Tuple, List
 
+import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -29,6 +31,15 @@ class PyTorchPlayer(Player):
         self.new_status = None
         self.encoding = None
 
+        self.history = pd.DataFrame(columns=['score', 'moves'])
+        self.plot = dict()
+        self.plot['figure'], self.plot['ax'] = plt.subplots()
+        self.plot['lines'], = self.plot['ax'].plot([], [], 'o')
+        # Autoscale on unknown axis and known lims on the other
+        self.plot['ax'].set_autoscaley_on(True)
+        # Other stuff
+        self.plot['ax'].grid()
+
     def push_board_status(self, occupation_matrix: np.array, moving_direction: Tuple[int, int],
                           score: int, food_score: int) -> None:
         """Player receives new board status"""
@@ -43,6 +54,12 @@ class PyTorchPlayer(Player):
         self.get_state_vector()
 
     def get_response(self) -> Tuple[int, int]:
+        """
+        predict response and map it to actual movement
+        get reward
+        train shor term memory and fill memeory of round
+
+        """
         self.new_status['prediction'] = self.predict_action()
 
         if self.new_status['prediction'][0] == 1:  # up
@@ -69,26 +86,55 @@ class PyTorchPlayer(Player):
 
         return self.new_status['move']
 
-    def closing_action(self):
+    def new_round(self) -> None:
+        """"At the beginning of a new round set move counter to zero"""
+        self.counter_move = 0
+
+    def closing_action(self, score: int) -> None:
+        """
+        perform all closing actions:
+        last short term memory action
+        train on round replay from memory
+
+        plot data
+
+        :param score:
+        :return:
+        """
         # One game is over, train on the memory
         self.get_state_vector()
 
-        reward = -10
+        reward = -30
 
         self.train_short_memory(self.previous_status['predictor_vector'], self.previous_status['prediction'], reward, self.new_status['predictor_vector'], True)
         self.remember(self.previous_status['predictor_vector'], self.previous_status['prediction'], reward, self.new_status['predictor_vector'], True)
         self.train_long_memory(self.memory)
 
+        self.history.loc[self.counter_games] = [score, self.counter_move]
+        # Update data plot data
+        self.plot['lines'].set_xdata(self.history.index)
+        self.plot['lines'].set_ydata(self.history['score'])
+        # Need both of these in order to rescale
+        self.plot['ax'].relim()
+        self.plot['ax'].autoscale_view()
+        # We need to draw *and* flush
+        self.plot['figure'].show()
+        self.plot['figure'].canvas.flush_events()
+
     def get_state_vector(self) -> None:
+        """
+        set predictor vector
+        :return:
+        """
         predictor_vector = []
         head = np.asarray(np.where(self.new_status['matrix'] == self.encoding['head'])).flatten()
         food = np.asarray(np.where(self.new_status['matrix'] == self.encoding['food'])).flatten()
 
         # Check if directions are free
-        predictor_vector.append(False if self.new_status['matrix'][head[0]-1, head[1]+0] == self.encoding['valid'] else True)  # up
-        predictor_vector.append(False if self.new_status['matrix'][head[0]+0, head[1]-1] == self.encoding['valid'] else True)  # left
-        predictor_vector.append(False if self.new_status['matrix'][head[0]+1, head[1]+0] == self.encoding['valid'] else True)  # down
-        predictor_vector.append(False if self.new_status['matrix'][head[0]+0, head[1]+1] == self.encoding['valid'] else True)  # right
+        predictor_vector.append(False if self.new_status['matrix'][head[0]-1, head[1]+0] in (self.encoding['valid'], self.encoding['food']) else True)  # up
+        predictor_vector.append(False if self.new_status['matrix'][head[0]+0, head[1]-1] in (self.encoding['valid'], self.encoding['food']) else True)  # left
+        predictor_vector.append(False if self.new_status['matrix'][head[0]+1, head[1]+0] in (self.encoding['valid'], self.encoding['food']) else True)  # down
+        predictor_vector.append(False if self.new_status['matrix'][head[0]+0, head[1]+1] in (self.encoding['valid'], self.encoding['food']) else True)  # right
 
         # Which direction are we running?
         predictor_vector.append(True if self.new_status['moving_direction'] == (-1, 0) else False)  # up

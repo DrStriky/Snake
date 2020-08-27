@@ -11,7 +11,8 @@ class Board(object):
     """
 
     def __init__(self, board_matrix: np.ndarray):
-        self.board_matrix = board_matrix
+        self.board_matrix = np.ones((board_matrix.shape[0]+4, board_matrix.shape[1]+4), dtype=int)
+        self.board_matrix[2:-2, 2:-2] = board_matrix
 
     def check_border_collision(self, new_head: Tuple[int, int]) -> bool:
         """
@@ -26,3 +27,10 @@ class Board(object):
                 return True
             else:
                 return False
+
+    # old and unused but maybe useful in the future
+    @staticmethod
+    def edge_mask(x: np.ndarray):
+        mask = np.ones(x.shape, dtype=bool)
+        mask[x.ndim * (slice(2, -2),)] = False
+        return mask

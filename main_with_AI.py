@@ -1,4 +1,4 @@
-import random
+import time
 
 import numpy as np
 import pygame
@@ -7,52 +7,39 @@ from game import Game
 from pytorch_interactions import PyGamePyTorchInteractionHandler
 from pytorch_player import PyTorchPlayer
 
-
-def edge_mask(x: np.ndarray):
-    mask = np.ones(x.shape, dtype=bool)
-    mask[x.ndim * (slice(1, -1),)] = False
-    return mask
+block_size = 25
 
 
 def main():
     # Define board
-    width = 15
-    height = 10
-    block_size = 25
-
-    dummy = np.zeros((height+2, width+2), dtype=int)
-    dummy[edge_mask(dummy)] = 1
+    width = 25
+    height = 20
+    board = np.zeros((height+2, width+2), dtype=int)
 
     # init pygame display
     pygame.init()
     pygame.font.init()
-    pygame.display.set_caption('Snake  (By Jonathan & Florian)')
-    display = pygame.display.set_mode([dummy.shape[1]*block_size, dummy.shape[0]*block_size])
+    pygame.display.set_caption('Snake AI (By Jonathan & Florian)')
 
     # set up player
     ai_player = PyTorchPlayer()
-    interacter = PyGamePyTorchInteractionHandler(player=ai_player, display=display, block_length=block_size,
-                                                 ticks_per_second=2000)
-    ai_player.encoding = interacter.get_encoding_dict()
 
     total_score = 0
     record = 0
     while True:
-        # initialise game ...... should be done in ini of game
-        snake_start_pos = (3, 3)
-        valid_pos = [tuple(coord) for coord in np.argwhere(dummy == 0).tolist()]
-        valid_pos.remove(snake_start_pos)
-        food_start_pos = valid_pos[random.randint(0, len(valid_pos) - 1)]
-
-        game = Game(dummy, snake_start_pos, food_start_pos, 42)
-        ai_player.counter_move = 0
+        game = Game(board_dim=board, random_seed=time.time_ns())
+        #display = pygame.display.set_mode([game.board.board_matrix.shape[1] * block_size, game.board.board_matrix.shape[0] * block_size])
+        #interacter = PyGamePyTorchInteractionHandler(player=ai_player, display=display, block_length=block_size, ticks_per_second=100)
+        interacter = PyGamePyTorchInteractionHandler(player=ai_player)
+        ai_player.encoding = interacter.get_encoding_dict()
+        ai_player.new_round()
         game.run_game(interacter)
+        ai_player.closing_action(game.game_score)
 
         total_score += game.game_score
-        ai_player.closing_action()
-        print('Game:', ai_player.counter_games, '\tScore:', game.game_score,  '\tTurns:', ai_player.counter_move)
         if game.game_score > record:
             record = game.game_score
+        print('Game:', ai_player.counter_games, '\tScore:', game.game_score, '\tTurns:', ai_player.counter_move)
         print('Record:\t\t\t', record)
 
 

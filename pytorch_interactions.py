@@ -55,8 +55,12 @@ class PyGamePyTorchInteractionHandler(InteractionHandler):
         self.block_length = None
         self.show_game = False
 
-        self.set_display(display, block_length)
-        self.set_ticks_per_second(ticks_per_second)
+        if display is None:
+            self.show_game = False
+        else:
+            self.show_game = True
+            self.set_display(display, block_length)
+            self.set_ticks_per_second(ticks_per_second)
 
         if formatting_file is not None:
             # ToDo: Load format from formatting file
@@ -99,16 +103,11 @@ class PyGamePyTorchInteractionHandler(InteractionHandler):
         :param ticks_per_second:
         """
         if ticks_per_second is not None:
-            if self.display is None:
-                raise ConfigurationError('No display available to show the game.')
-            else:
-                self.ticks_per_second = ticks_per_second
-                self.clock = pygame.time.Clock()
-                self.show_game = True
+            self.ticks_per_second = ticks_per_second
+            self.clock = pygame.time.Clock()
         else:
             self.ticks_per_second = None
             self.clock = None
-            self.show_game = False
 
     def get_encoding_dict(self) -> BoardEncodingDict:
         """Returns the encoding for different board elements."""
@@ -132,7 +131,8 @@ class PyGamePyTorchInteractionHandler(InteractionHandler):
 
             self.display.blit(self.font.render(f'{current_score}', True, (0, 255, 255)),  (25, 0))
             pygame.display.update()
-            self.clock.tick(self.ticks_per_second)
+            if self.clock is not None:
+                self.clock.tick(self.ticks_per_second)
 
             for event in pygame.event.get():
                 # ToDo: remove this crap that is caused by fucking OS X/PyGame Interaction Error
